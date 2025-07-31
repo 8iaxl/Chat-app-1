@@ -1,0 +1,144 @@
+/* styles.css */
+:root{
+  --primary:#21E700;:#E7E100;
+  --bg:#555555;
+  --card:#555555;
+  --text:#FFFFFF;
+  --muted:#FFFFFF;
+  --radius:14px;
+  --shadow:0 8px 24px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+.container{
+  max-width:520px;
+  margin-inline:auto;
+  padding:16px;
+}
+.header{ text-align:center; margin: 10px 0 18px }
+.header h1{ margin:0; font-size:1.8rem; color:var(--primary) }
+.card{
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:16px;
+  margin-bottom:12px;
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:100%;
+  padding:12px 14px;
+  margin-top:12px;
+  border:none;
+  border-radius:10px;
+  font-size:1rem;
+  cursor:pointer;
+  transition:transform .06s ease, opacity .2s ease;
+}
+.btn:active{ transform: scale(.98) }
+.btn-primary{ background:var(--primary); color:#fff }
+.btn-secondary{ background:#e9eaed; color:#222 }
+.input, .file{
+  width:100%;
+  padding:12px;
+  border:1px solid #dcdfe4;
+  border-radius:10px;
+  margin-top:8px;
+  font-size:1rem;
+  background:#fff;
+}
+.nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:6px 2px 12px;
+}
+.nav h2{ margin:0; font-size:1.2rem }
+.nav button{
+  background:transparent;
+  border:none;
+  font-size:1.5rem;
+  line-height:1;
+  padding:6px 10px;
+  border-radius:10px;
+}
+.nav button:active{ background:#eef2f7 }
+.list-item{
+  display:flex; align-items:center; gap:12px;
+  padding:12px; border-radius:12px; cursor:pointer;
+  transition: background .2s ease;
+}
+.list-item:hover{ background:#f1f4f8 }
+.avatar{
+  width:42px; height:42px; border-radius:50%;
+  background:#d7e6fb; display:inline-flex; align-items:center; justify-content:center;
+  font-weight:600; color:#2d6cdf;
+}
+.chat-window{
+  height: 62vh; overflow-y:auto; padding:8px; background: linear-gradient(180deg,#f8fafc, #eef3f8);
+  border-radius:12px;
+  border:1px solid #e6ebf1;
+}
+.message{ margin:10px 0; display:flex; flex-direction:column; }
+.message.user{ align-items:flex-end }
+.message .bubble{
+  max-width:76%;
+  padding:10px 12px;
+  border-radius:14px;
+  position:relative;
+  word-wrap:break-word;
+  white-space:pre-wrap;
+}
+.message.user .bubble{
+  background:var(--primary); color:#fff; border-bottom-right-radius:6px;
+}
+.message.other .bubble{
+  background:#e9eef6; color:#1a1a1a; border-bottom-left-radius:6px;
+}
+.message .time{ font-size:.75rem; color:var(--muted); margin-top:4px }
+.input-row{
+  display:flex; gap:8px; align-items:center;
+}
+.input-row .input{ flex:1 }
+.menu{
+  position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.35);
+  padding:16px;
+}
+.menu.open{ display:grid }
+.menu .sheet{
+  width:100%; max-width:480px; background:#fff; border-radius:16px; box-shadow:var(--shadow); padding:14px;
+}
+.menu .row{ display:flex; gap:8px; align-items:center; margin:10px 0 }
+.small{ font-size:.9rem; color:var(--muted) }
+hr{ border:none; height:1px; background:#edf0f4; margin:8px 0 }
+.footer-note{ text-align:center; color:var(--muted); font-size:.8rem; margin-top:8px }
+
+/* ——— إصلاحات صندوق الإدخال وزر الإرسال في chat.html ——— */
+.input-row .btn{ 
+  width:auto;           /* بدلاً من 100% داخل صف الإدخال فقط */
+  padding:10px 12px; 
+  flex:0 0 auto;        /* لا يتمدّد */
+}
+textarea.input{
+  min-height:44px;
+  max-height:140px;     /* حد أقصى للارتفاع */
+  resize:none;          /* منع السحب اليدوي */
+  line-height:1.5;
+}
+
+@media (min-height:800px){
+  .chat-window{ height: 68vh }
+}
+@media (max-width:420px){
+  .input-row .btn{ padding:10px 10px; }
+  }
