@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>دردشة</title>
+</head>
+<body>
+  <div class="container">
+    <div class="nav">
+      <button title="رجوع" onclick="location.href='index.html'">←</button>
+      <h2 id="headerName">محادثة</h2>
+      <button title="خيارات" onclick="toggleMenu()">⋮</button>
+    </div>
+
+    <div id="chat" class="chat-window"></div>
+
+    <div class="card">
+      <div class="input-row">
+        <input id="inputMsg" class="input" placeholder="اكتب رسالة..." />
+        <button class="btn btn-primary" onclick="send()">إرسال</button>
+      </div>
+    </div>
+
+    <div id="menu" class="menu" onclick="backdropClose(event)">
+      <div class="sheet" onclick="event.stopPropagation()">
+        <h3>الخيارات</h3>
+        <div class="row">
+          <label>تغيير الاسم:</label>
+          <input id="nameInput" class="input" placeholder="اكتب الاسم الجديد" />
+        </div>
+        <div class="row">
+          <label>صورة البروفايل:</label>
+          <input id="avatarInput" type="file" class="file" accept="image/*" />
+        </div>
+        <div class="row">
+          <label>خلفية المحادثة:</label>
+          <input id="bgInput" type="file" class="file" accept="image/*" />
+        </div>
+        <button class="btn btn-primary" onclick="applyOptions()">حفظ التغييرات</button>
+        <button class="btn btn-secondary" onclick="toggleMenu()">إغلاق</button>
+        <hr/>
+        <div class="small">التغييرات تحفظ محليًا لهذا الحساب فقط</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let users = JSON.parse(localStorage.getItem('users') || '[]');
+    const me = localStorage.getItem('current');
+    const withUser = localStorage.getItem('chatWith');
+    if(!me || !withUser){ location.href='index.html'; }
+    let meData = users.find(x => x.username === me);
+    let chat = meData?.chats?.find(c => c.with === withUser);
+    if(!chat){ alert('لم يتم العثور على المحادثة'); location.href='index.html'; }
+    document.getElementById('headerName').textContent = withUser;
+
+    function renderChat(){
+      const win = document.getElementById('chat'); win.innerHTML='';
+      // خلفية مخصصة
+      if(meData?.profile?.bg){ win.style.backgroundImage = `url(${meData.profile.bg})`; win.style.backgroundSize='cover'; win.style.backgroundPosition='center'; } else { win.style.backgroundImage='none'; }
+      chat.msgs.forEach((m,i) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'message ' + (m.from === me ? 'user' : 'other');
+
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        bubble.textContent = m.text;
+        bubble.title = 'حذف الرسالة';
+        bubble.onclick = () => deleteMsg(i);
+
+        const t = document.createElement('div');
+        t.className = 'time';
+        t.textContent = m.time;
+
+        wrap.appendChild(bubble);
+        wrap.appendChild(t);
+        win.appendChild(wrap);
+      });
+      win.scrollTop = win.scrollHeight;
+    }
+
+    function nowTime(){
+      return new Date().toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' });
+    }
+
+    function send(){
+      const input = document.getElementById('inputMsg');
+      const txt = input.value.trim(); if(!txt) return;
+      const time = nowTime();
+      chat.msgs.push({ from: me, text: txt, time });
+      // مرآة لدى الطرف الآخر
+      const other = users.find(x => x.username === withUser);
+      let otherChat = other.chats.find(c => c.with === me);
+      if(!otherChat){ otherChat = { with: me, msgs: [] }; other.chats.push(otherChat); }
+      otherChat.msgs.push({ from: me, text: txt, time });
+
+      localStorage.setItem('users', JSON.stringify(users));
+      input.value='';
+      renderChat();
+    }
+
+    function deleteMsg(index){
+      if(confirm('حذف هذه الرسالة؟')){
+        chat.msgs.splice(index,1);
+        localStorage.setItem('users', JSON.stringify(users));
+        renderChat();
+      }
+    }
+
+    function toggleMenu(){
+      const m = document.getElementById('menu');
+      m.classList.toggle('open');
+      // تهيئة الحقول
+      document.getElementById('nameInput').value = meData.profile?.name || me;
+    }
+    function backdropClose(e){ if(e.target.id === 'menu'){ toggleMenu(); } }
+
+    function fileToDataURL(file, cb){
+      const reader = new FileReader();
+      reader.onload = () => cb(reader.result);
+      reader.readAsDataURL(file);
+    }
+    function applyOptions(){
+      const newName = document.getElementById('nameInput').value.trim();
+      const avFile = document.getElementById('avatarInput').files[0];
+      const bgFile = document.getElementById('bgInput').files[0];
+
+      if(!meData.profile) meData.profile = { name: me, avatar: '', bg: '' };
+      if(newName){ meData.profile.name = newName; }
+
+      const finalize = () => {
+        localStorage.setItem('users', JSON.stringify(users));
+        alert('تم الحفظ');
+        toggleMenu();
+        renderChat();
+      };
+
+      if(avFile){
+        fileToDataURL(avFile, (url) => { meData.profile.avatar = url; if(!bgFile) finalize(); });
+      }
+      if(bgFile){
+        fileToDataURL(bgFile, (url) => { meData.profile.bg = url; finalize(); });
+      }
+      if(!avFile && !bgFile){ finalize(); }
+    }
+
+    renderChat();
+  </script>
+</body>
+</html>

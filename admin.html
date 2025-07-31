@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>لوحة التحكم</title>
+</head>
+<body>
+  <div class="container">
+    <div class="header"><h1>لوحة التحكم</h1></div>
+    <div id="adminList"></div>
+  </div>
+  <script>
+    function load(){
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const list = document.getElementById('adminList'); list.innerHTML='';
+      if(users.length === 0){
+        const empty = document.createElement('div'); empty.className='card small'; empty.textContent='لا يوجد مستخدمون بعد';
+        list.appendChild(empty); return;
+      }
+      users.forEach((u,i)=>{
+        const d=document.createElement('div'); d.className='card';
+        d.innerHTML = `
+          <strong>\u202B${u.username}\u202C</strong><br/>
+          محادثات: ${u.chats?.length || 0}<br/>
+          <button class="btn btn-secondary" onclick="del(${i})">حذف المستخدم</button>
+        `;
+        list.appendChild(d);
+      });
+    }
+    function del(i){
+      if(confirm('سيتم حذف المستخدم نهائيًا، هل أنت متأكد؟')){
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        users.splice(i,1);
+        localStorage.setItem('users', JSON.stringify(users));
+        load();
+      }
+    }
+    load();
+  </script>
+</body>
+</html>

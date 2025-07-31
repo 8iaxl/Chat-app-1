@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>إنشاء حساب</title>
+</head>
+<body>
+  <div class="container">
+    <div class="header"><h1>إنشاء حساب</h1></div>
+    <div class="card">
+      <label>الاسم</label>
+      <input type="text" id="username" class="input" placeholder="أدخل اسم المستخدم" />
+      <label>كلمة المرور</label>
+      <input type="password" id="password" class="input" placeholder="أدخل كلمة المرور" />
+      <button class="btn btn-primary" onclick="signup()">تسجيل</button>
+      <button class="btn btn-secondary" onclick="location.href='login.html'">لديّ حساب</button>
+      <div class="footer-note">يتم حفظ البيانات محليًا على جهازك</div>
+    </div>
+  </div>
+  <script>
+    function signup() {
+      const u = document.getElementById('username').value.trim();
+      const p = document.getElementById('password').value;
+      if (!u || !p) { alert('يرجى ملء الحقول'); return; }
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      if (users.find(x => x.username === u)) { alert('المستخدم موجود'); return; }
+      users.push({ username: u, password: p, profile: { name: u, avatar: '' }, chats: [] });
+      localStorage.setItem('users', JSON.stringify(users));
+      alert('تم التسجيل بنجاح'); location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>

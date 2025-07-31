@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>المحادثات</title>
+</head>
+<body>
+  <div class="container">
+    <div class="nav">
+      <button title="خروج" onclick="logout()">⎋</button>
+      <h2>المحادثات</h2>
+      <span></span>
+    </div>
+    <div id="list"></div>
+    <div class="card">
+      <button class="btn btn-primary" onclick="newChat()">+ دردشة جديدة</button>
+    </div>
+  </div>
+  <script>
+    let users = JSON.parse(localStorage.getItem('users') || '[]');
+    const me = localStorage.getItem('current');
+    function ensureAuth(){ if(!me){ location.href='login.html'; } }
+    function render() {
+      users = JSON.parse(localStorage.getItem('users') || '[]');
+      const meData = users.find(x => x.username === me);
+      if(!meData){ alert('يرجى تسجيل الدخول'); location.href='login.html'; return; }
+      const list = document.getElementById('list'); list.innerHTML='';
+      if (meData.chats.length === 0) {
+        const empty = document.createElement('div');
+        empty.className='card small'; empty.textContent='لا توجد محادثات بعد — ابدأ محادثة جديدة';
+        list.appendChild(empty);
+      }
+      meData.chats.forEach(c => {
+        const div = document.createElement('div');
+        div.className='list-item card';
+        const av = document.createElement('div'); av.className='avatar'; av.textContent=(c.with || '?')[0] || '?';
+        const col = document.createElement('div');
+        const last = c.msgs && c.msgs.length ? c.msgs[c.msgs.length-1].text : 'ابدأ المحادثة الآن';
+        col.innerHTML = `<strong>${c.with}</strong><div class="small">${last}</div>`;
+        div.appendChild(av); div.appendChild(col);
+        div.onclick = () => openChat(c.with);
+        list.appendChild(div);
+      });
+    }
+    function newChat(){
+      const name = prompt('الرجاء إدخال اسم المستخدم الذي تريد مراسلته:');
+      if(!name) return;
+      users = JSON.parse(localStorage.getItem('users') || '[]');
+      if(!users.find(x => x.username === name)) { alert('لا يوجد مستخدم بهذا الاسم'); return; }
+      const meData = users.find(x => x.username === me);
+      if(!meData.chats.find(c => c.with === name)){
+        meData.chats.push({ with:name, msgs:[] });
+        localStorage.setItem('users', JSON.stringify(users));
+      }
+      openChat(name);
+    }
+    function openChat(withUser){
+      localStorage.setItem('chatWith', withUser);
+      location.href='chat.html';
+    }
+    function logout(){ localStorage.removeItem('current'); location.href='login.html'; }
+    ensureAuth(); render();
+  </script>
+</body>
+</html>
